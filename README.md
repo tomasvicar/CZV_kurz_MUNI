@@ -10,6 +10,11 @@ Kurzovní data ke stažení:
 
 - [data.zip](data.zip)
 
+## Materiály ke kurzu
+
+- [Základy Fiji](Fiji_basics.md) — rychlá ukázka základních operací a psaní maker s pomocí AI
+- [Ukázka AI agenta](AI_agent_showcase1.md) — segmentace buněk a porovnání velikostí pomocí LLM kódovacího agenta
+
 ## Instalace softwaru
 
 ### Fiji

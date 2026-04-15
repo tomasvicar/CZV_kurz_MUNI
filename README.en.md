@@ -10,6 +10,11 @@ Course data for download:
 
 - [data.zip](data.zip)
 
+## Course materials
+
+- [Fiji basics](Fiji_basics.en.md) — a quick tour of basic operations and writing macros with AI help
+- [AI agent showcase](AI_agent_showcase1.en.md) — cell segmentation and size comparison using an LLM coding agent
+
 ## Software installation
 
 ### Fiji
