@@ -71,7 +71,7 @@ def segment(img):
     return morphology.remove_small_objects(labels, min_size=MIN_CELL_AREA)
 ```
 
-Full script — [segment_cells.py](segment_cells.py).
+Full script — [segment_cells.py](assets/segment_cells.py).
 
 ---
 
@@ -81,12 +81,12 @@ Full script — [segment_cells.py](segment_cells.py).
 
 | Cell type | Overlay |
 |---|---|
-| **PNT1A** (dense epithelial field) | ![PNT1A QC](results/qc_PNT1A.png) |
-| **PC3** (sparse, low-contrast) | ![PC3 QC](results/qc_PC3.png) |
+| **PNT1A** (dense epithelial field) | ![PNT1A QC](assets/qc_PNT1A.png) |
+| **PC3** (sparse, low-contrast) | ![PC3 QC](assets/qc_PC3.png) |
 
 ### Size comparison
 
-![Boxplot of cell areas](results/boxplot_cell_sizes.png)
+![Boxplot of cell areas](assets/boxplot_cell_sizes.png)
 
 | Type  | n  | Median (px) | Mean (px) |
 |-------|----|-------------|-----------|
@@ -125,5 +125,3 @@ actually want for a size comparison.
   heavyweight models — fast to run and easy to audit.
 
 ---
-
-*Generated with Claude Code (Opus 4.6) — `d:/CZV_kurz_MUNI/xxx`.*
