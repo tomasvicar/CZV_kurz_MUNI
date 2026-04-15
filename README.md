@@ -1,5 +1,7 @@
 # CZV kurz MUNI
 
+*🇬🇧 [English version](README.en.md)*
+
 Materiály a instalační pokyny pro kurz zpracování obrazu (Fiji, Ilastik, Cellpose, CellProfiler).
 
 ## Data

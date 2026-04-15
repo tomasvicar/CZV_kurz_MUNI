@@ -1,48 +1,52 @@
-# Image Processing Agent — Showcase
+# Agent pro zpracování obrazu — ukázka
 
-A short demonstration of using an LLM coding agent (Claude Code) as an
-**autonomous image-processing assistant**: from a one-line request to a working
-pipeline, QC images, and a comparative plot.
+*🇬🇧 [English version](AI_agent_showcase1.en.md)*
+
+Krátká ukázka použití LLM kódovacího agenta (Claude Code) jako
+**autonomního asistenta pro zpracování obrazu**: od jednovětého zadání
+k funkčnímu pipeline, QC obrázkům a srovnávacímu grafu.
 
 ---
 
-## The prompt
+## Zadání
 
-> *"Try to create a simple script that segments cells in the `testovaci_data`
+> *„Try to create a simple script that segments cells in the `testovaci_data`
 > folder, extracts their sizes, and plots a boxplot comparing the two cell
 > types. Also save an example segmentation for quality control."*
 
-Followed by:
+Následováno:
 
-> *"Segmentation is not very good — try some better approach."*
+> *„Segmentation is not very good — try some better approach."*
 
-No file paths, no library choice, no parameters. The agent had to figure out
-the data layout, pick a segmentation strategy, and iterate on quality.
-
----
-
-## What the agent did
-
-1. **Explored the workspace** — found that `testovaci_data` did not exist and
-   fell back to `data_celltypes/` (4 TIFFs, two cell types: *PNT1A* and *PC3*).
-2. **Diagnosed the file format** — LZW-compressed TIFFs; installed the missing
-   `imagecodecs` dependency automatically.
-3. **Built a first pipeline** — Gaussian blur → Otsu → distance-transform
-   watershed. Ran it. Noticed that dim *PC3* cells were lost because Otsu's
-   global threshold was too strict for sparse, low-contrast fields.
-4. **Iterated on quality** after user feedback:
-   - per-image percentile normalization
-   - rolling-ball-style background subtraction (large-σ Gaussian)
-   - **triangle threshold** instead of Otsu (more permissive for sparse foreground)
-   - **`peak_local_max`** seeding for markers → cleaner watershed splits of
-     touching nuclei
-5. **Reported honestly** — flagged the 3 faintest PC3 blobs still below
-   threshold and recommended Cellpose/StarDist for a real fix on dim cells,
-   rather than claiming a perfect result.
+Žádné cesty k souborům, žádná volba knihovny, žádné parametry. Agent si
+musel sám zjistit strukturu dat, vybrat segmentační strategii a iterovat
+na kvalitě.
 
 ---
 
-## The pipeline (classical, ~40 lines)
+## Co agent udělal
+
+1. **Prozkoumal workspace** — zjistil, že `testovaci_data` neexistuje a
+   přešel na `data_celltypes/` (4 TIFFy, dva typy buněk: *PNT1A* a *PC3*).
+2. **Diagnostikoval formát souborů** — LZW-komprimované TIFFy; chybějící
+   závislost `imagecodecs` doinstaloval automaticky.
+3. **Postavil první pipeline** — Gaussovský blur → Otsu → watershed nad
+   distanční transformací. Spustil ho. Všiml si, že slabé *PC3* buňky
+   zmizely, protože Otsu globální práh byl pro řídká pole s nízkým
+   kontrastem příliš přísný.
+4. **Iteroval na kvalitě** po zpětné vazbě:
+   - per-image percentilová normalizace
+   - odečtení pozadí stylem „rolling ball" (Gauss s velkým σ)
+   - **triangle threshold** místo Otsu (benevolentnější pro řídký foreground)
+   - **`peak_local_max`** seedování markerů → čistší watershed rozdělení
+     dotýkajících se jader
+5. **Poctivě reportoval** — označil 3 nejslabší PC3 objekty, které pořád
+   zůstaly pod prahem, a doporučil Cellpose/StarDist jako skutečné řešení
+   pro slabé buňky místo toho, aby tvrdil, že výsledek je dokonalý.
+
+---
+
+## Pipeline (klasická, ~40 řádků)
 
 ```python
 def segment(img):
@@ -71,57 +75,60 @@ def segment(img):
     return morphology.remove_small_objects(labels, min_size=MIN_CELL_AREA)
 ```
 
-Full script — [segment_cells.py](assets/segment_cells.py).
+Celý skript — [segment_cells.py](assets/segment_cells.py).
 
 ---
 
-## Results
+## Výsledky
 
-### Quality-control overlays
+### QC overlaye
 
-| Cell type | Overlay |
+| Typ buňky | Overlay |
 |---|---|
-| **PNT1A** (dense epithelial field) | ![PNT1A QC](assets/qc_PNT1A.png) |
-| **PC3** (sparse, low-contrast) | ![PC3 QC](assets/qc_PC3.png) |
+| **PNT1A** (husté epiteliální pole) | ![PNT1A QC](assets/qc_PNT1A.png) |
+| **PC3** (řídké, nízký kontrast) | ![PC3 QC](assets/qc_PC3.png) |
 
-### Size comparison
+### Porovnání velikostí
 
-![Boxplot of cell areas](assets/boxplot_cell_sizes.png)
+![Boxplot velikostí buněk](assets/boxplot_cell_sizes.png)
 
-| Type  | n  | Median (px) | Mean (px) |
-|-------|----|-------------|-----------|
-| PC3   | 17 | 2057        | 2112      |
-| PNT1A | 84 | 1571        | 1694      |
+| Typ   | n  | Medián (px) | Průměr (px) |
+|-------|----|-------------|-------------|
+| PC3   | 17 | 2057        | 2112        |
+| PNT1A | 84 | 1571        | 1694        |
 
-*PC3 cells are visibly larger but far sparser than the dense PNT1A field — a
-biologically plausible result that matches what you see in the raw images.*
+*PC3 buňky jsou viditelně větší, ale mnohem řidší než husté PNT1A pole —
+biologicky věrohodný výsledek, který odpovídá tomu, co vidíte v surových
+obrázcích.*
 
-### Before vs. after the "try a better approach" iteration
+### Před a po iteraci „try a better approach"
 
-|                | First attempt (Otsu)    | Improved (triangle + BG-sub) |
-|----------------|-------------------------|------------------------------|
-| PC3 cells found | 19                      | **17** (but full bodies)     |
-| PC3 median area | 753 px (eroded masks)   | **2057 px** (accurate)       |
-| PNT1A splits    | over-fragmented         | **clean one-per-nucleus**    |
+|                   | První pokus (Otsu)       | Zlepšené (triangle + BG-sub) |
+|-------------------|--------------------------|------------------------------|
+| Nalezené PC3      | 19                       | **17** (ale celá těla)       |
+| Medián plochy PC3 | 753 px (erodované masky) | **2057 px** (přesné)         |
+| PNT1A dělení      | přefragmentované         | **čisté jedno-na-jádro**     |
 
-The first run reported *more* PC3 objects but each was a small eroded
-fragment. The improved run captures full cell bodies, which is what you
-actually want for a size comparison.
+První běh nahlásil *více* PC3 objektů, ale každý byl malý erodovaný
+fragment. Zlepšený běh zachytí celá těla buněk, což je to, co pro
+porovnání velikostí skutečně chcete.
+
+---
+
+## Co to ukazuje
+
+- **Otevřené zadání → funkční pipeline.** Agent zvládl podspecifikovaný
+  požadavek end-to-end: objevení dat, instalaci závislostí, volbu
+  algoritmu, iteraci a reporting.
+- **Sebekorekce podle kvality.** Když dostal zpětnou vazbu, že výstup je
+  špatný, *změnil metodu* (práh, preprocessing, markery), místo aby jen
+  ladil konstanty.
+- **Poctivé limity.** Označil zbývající selhání (3 slabé PC3 objekty) a
+  doporučil, kdy by byl další krok deep-learning nástroj, místo aby
+  předstíral, že klasické metody vyhrály.
+- **Malá stopa.** Jeden skript, standardní `scikit-image` stack, žádné
+  těžké modely — rychlé spuštění a snadný audit.
 
 ---
 
-## What this demonstrates
-
-- **Open-ended task → working pipeline.** The agent handled an under-specified
-  request end-to-end: data discovery, dependency install, algorithm choice,
-  iteration, and reporting.
-- **Self-correction on quality.** When told the output was bad, it *changed
-  the method* (threshold, preprocessing, markers) rather than just tweaking
-  constants.
-- **Honest limitations.** It flagged remaining failures (3 dim PC3 blobs) and
-  suggested when a deep-learning tool would be the right next step instead of
-  pretending classical methods had won.
-- **Small footprint.** One script, standard `scikit-image` stack, no
-  heavyweight models — fast to run and easy to audit.
-
----
+*Vygenerováno pomocí Claude Code (Opus 4.6) — `d:/CZV_kurz_MUNI/xxx`.*
