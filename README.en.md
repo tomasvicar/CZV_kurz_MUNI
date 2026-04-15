@@ -8,7 +8,7 @@ Materials and installation instructions for the image processing course (Fiji, I
 
 Course data for download:
 
-- [FileSender CESNET — download data](https://filesender.cesnet.cz/?s=download&token=5f3ddd5d-bc29-4d98-b733-5825b8ae162d)
+- [data.zip](data.zip)
 
 ## Software installation
 

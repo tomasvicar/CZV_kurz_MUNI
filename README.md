@@ -8,7 +8,7 @@ Materiály a instalační pokyny pro kurz zpracování obrazu (Fiji, Ilastik, Ce
 
 Kurzovní data ke stažení:
 
-- [FileSender CESNET — stáhnout data](https://filesender.cesnet.cz/?s=download&token=5f3ddd5d-bc29-4d98-b733-5825b8ae162d)
+- [data.zip](data.zip)
 
 ## Instalace softwaru
 
